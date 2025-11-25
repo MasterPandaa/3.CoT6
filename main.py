@@ -1,6 +1,7 @@
-import sys
-import random
 import math
+import random
+import sys
+
 import pygame
 
 # -----------------------------
@@ -70,6 +71,7 @@ HEIGHT = ROWS * TILE_SIZE + 60  # extra UI bar at bottom
 # Helpers
 # -----------------------------
 
+
 def add_tuple(a, b):
     return (a[0] + b[0], a[1] + b[1])
 
@@ -113,21 +115,21 @@ class Maze:
     def _parse(self):
         for y, line in enumerate(self.layout):
             for x, ch in enumerate(line):
-                if ch == '#':
+                if ch == "#":
                     self.walls.add((x, y))
-                elif ch == '.':
+                elif ch == ".":
                     self.pellets.add((x, y))
-                elif ch == 'o':
+                elif ch == "o":
                     self.power_pellets.add((x, y))
-                elif ch == 'P':
+                elif ch == "P":
                     self.pacman_spawns.append((x, y))
-                elif ch == 'G':
+                elif ch == "G":
                     self.ghost_spawns.append((x, y))
         # If no explicit pacman spawn, default center-ish empty cell
         if not self.pacman_spawns:
             for y, line in enumerate(self.layout):
                 for x, ch in enumerate(line):
-                    if ch in (' ', '.', 'o'):
+                    if ch in (" ", ".", "o"):
                         self.pacman_spawns.append((x, y))
                         return
 
@@ -140,18 +142,18 @@ class Maze:
 
     def draw(self, surf, font, score, lives, power_time):
         # Draw walls
-        for (x, y) in self.walls:
+        for x, y in self.walls:
             rect = pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
             pygame.draw.rect(surf, BLUE, rect)
 
         # Draw pellets
-        for (x, y) in self.pellets:
+        for x, y in self.pellets:
             cx, cy = grid_to_pix((x, y))
             pygame.draw.circle(surf, WHITE, (cx, cy), 3)
 
         # Draw power pellets (pulsing)
         pulse = 6 + int(2 * math.sin(pygame.time.get_ticks() * 0.008))
-        for (x, y) in self.power_pellets:
+        for x, y in self.power_pellets:
             cx, cy = grid_to_pix((x, y))
             pygame.draw.circle(surf, WHITE, (cx, cy), pulse)
 
@@ -310,7 +312,9 @@ class Ghost:
 
     def draw(self, surf):
         x, y = int(self.pos[0]), int(self.pos[1])
-        color = FRIGHT_BLUE if self.frightened and self.respawn_timer == 0 else self.color
+        color = (
+            FRIGHT_BLUE if self.frightened and self.respawn_timer == 0 else self.color
+        )
         radius = TILE_SIZE // 2 - 1
         # body
         pygame.draw.circle(surf, color, (x, y), radius)
@@ -338,11 +342,18 @@ class Game:
         self.maze = Maze(MAZE_LAYOUT)
         self.player = Player(self.maze)
         # Setup ghosts - pick up to 4 spawns; if fewer, use center area
-        spawn_cells = self.maze.ghost_spawns or [(COLS // 2 - 1, ROWS // 2), (COLS // 2, ROWS // 2), (COLS // 2 + 1, ROWS // 2), (COLS // 2, ROWS // 2 - 1)]
+        spawn_cells = self.maze.ghost_spawns or [
+            (COLS // 2 - 1, ROWS // 2),
+            (COLS // 2, ROWS // 2),
+            (COLS // 2 + 1, ROWS // 2),
+            (COLS // 2, ROWS // 2 - 1),
+        ]
         colors = [RED, PINK, CYAN, ORANGE]
         self.ghosts = []
         for i in range(min(4, len(spawn_cells))):
-            self.ghosts.append(Ghost(self.maze, colors[i % len(colors)], spawn_cells[i]))
+            self.ghosts.append(
+                Ghost(self.maze, colors[i % len(colors)], spawn_cells[i])
+            )
         self.score = 0
         self.lives = 3
         self.power_timer = 0
